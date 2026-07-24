@@ -575,3 +575,14 @@ html[data-theme="dark"] .eco-world .link-label{box-shadow:0 4px 14px rgba(0,0,0,
 .eco-viewport .link-hit{fill:none;stroke:#000;stroke-opacity:0;stroke-width:18;pointer-events:stroke;cursor:pointer}
 .eco-chip{position:absolute;z-index:40;max-width:340px;padding:8px 11px;background:var(--tc116);border:1px solid var(--tc65);border-radius:9px;box-shadow:0 8px 20px rgba(29,54,78,.16);color:var(--tc16);font-size:11px;line-height:1.5;pointer-events:none}
 .eco-world.has-focus .link-hit{pointer-events:stroke}
+
+.section-subblock{margin-top:16px}
+.subtable-title{margin:0 0 8px;font-size:13px;letter-spacing:.01em}
+.india-card .india-sub{margin-top:10px;padding-top:8px;border-top:1px solid var(--tc90)}
+.india-card .india-sub strong{display:block;margin-bottom:4px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--tc43)}
+.india-card ul{margin:0;padding-left:16px}
+.india-card li{margin:3px 0;font-size:12.5px;line-height:1.55}
+
+/* eco map: solid borders so sector boxes stay visible at any zoom (ink in light, pale in dark) */
+.eco-viewport .sector.eco-sector-box{border:2px solid #2B2B2B;}
+html[data-theme="dark"] .eco-viewport .sector.eco-sector-box{border:2px solid #8398a7;}

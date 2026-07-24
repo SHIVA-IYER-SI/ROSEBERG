@@ -31,7 +31,7 @@ function heroFacts(code,d){const facts={
  ]
 };return (facts[code]||d.heroFacts||[[d.directness||'Industrial input','NODE ROLE',''],[d.phaseTitle||'Value chain','INDUSTRIAL LAYER',''],['Global','GEOGRAPHY',''],['Structural','MARKET CHARACTER','']]).map(([v,l,n])=>`<div class="hero-metric"><div class="hero-value">${v}</div><div class="hero-label">${l}</div><div class="hero-note">${n}</div></div>`).join('');}
 function executiveInterpretation(d){return `<div class="executive-interpretation"><div class="interpretation-label">EXECUTIVE INTERPRETATION</div><p>${d.executiveNarrative||''}</p></div>`;}
-function block1(d){const scoreHtml=(d.scores||[]).map(([label,score,value])=>`<div class="score-row"><div class="score-label">${label}</div><div class="score-track"><div class="score-fill" style="width:${score}%"></div></div><div class="score-value">${value}</div></div>`).join('');const evidence=(d.evidence||[]).map(([value,text,source])=>`<article class="evidence-card"><div class="evidence-value">${value}</div><div class="evidence-text">${text}</div><div class="evidence-source">${sourceLink(source)}</div></article>`).join('');return `<section id="section-snapshot" class="block"><div class="block-header"><div><div class="block-index">EXECUTIVE VIEW</div><div class="block-title">Investor Snapshot</div></div><div class="block-status">${d.phaseTitle}</div></div><div class="callout market-definition">${d.scopeNote}</div>${executiveInterpretation(d)}<div class="section"><h2 class="section-title">Node identity and relevance</h2><div class="grid2">${cards(d.basics)}${listCard('Global leaders and operators',d.operators?.global||[])}${listCard('India exposure',d.operators?.india||[])}</div></div><div class="section"><h2 class="section-title">Structural characteristics</h2><article class="card"><div class="score-list">${scoreHtml}</div></article></div><div class="section"><h2 class="section-title">Current evidence</h2><div class="evidence-grid">${evidence}</div></div><div class="section"><h2 class="section-title">Positive and adverse indicators</h2><div class="grid2">${listCard('Positive indicators',d.green||[],'flag-positive')}${listCard('Adverse indicators',d.red||[],'flag-negative')}</div></div><div class="section"><h2 class="section-title">Government policy and geopolitics</h2>${rowList(d.policies||[])}</div><div class="section"><h2 class="section-title">Operating indicators</h2><div class="grid2">${(d.kpis||[]).map(([n,w])=>`<article class="card"><h3>${n}</h3><p>${w}</p></article>`).join('')}</div></div></section>`;}
+function block1(d){const scoreHtml=(d.scores||[]).map(([label,score,value])=>`<div class="score-row"><div class="score-label">${label}</div><div class="score-track"><div class="score-fill" style="width:${score}%"></div></div><div class="score-value">${value}</div></div>`).join('');const evidence=(d.evidence||[]).map(([value,text,source])=>`<article class="evidence-card"><div class="evidence-value">${value}</div><div class="evidence-text">${text}</div><div class="evidence-source">${sourceLink(source)}</div></article>`).join('');return `<section id="section-snapshot" class="block"><div class="block-header"><div><div class="block-index">EXECUTIVE VIEW</div><div class="block-title">Investor Snapshot</div></div><div class="block-status">${d.phaseTitle}</div></div><div class="callout market-definition">${d.scopeNote}</div>${executiveInterpretation(d)}<div class="section"><h2 class="section-title">Node identity and relevance</h2><div class="grid2">${cards(d.basics)}${listCard('Global leaders and operators',d.operators?.global||[])}${indiaCard(d)}</div></div><div class="section"><h2 class="section-title">Structural characteristics</h2><article class="card"><div class="score-list">${scoreHtml}</div></article></div><div class="section"><h2 class="section-title">Current evidence</h2><div class="evidence-grid">${evidence}</div></div><div class="section"><h2 class="section-title">Positive and adverse indicators</h2><div class="grid2">${listCard('Positive indicators',d.green||[],'flag-positive')}${listCard('Adverse indicators',d.red||[],'flag-negative')}</div></div><div class="section"><h2 class="section-title">Government policy and geopolitics</h2>${rowList(d.policies||[])}</div><div class="section"><h2 class="section-title">Operating indicators</h2><div class="grid2">${(d.kpis||[]).map(([n,w])=>`<article class="card"><h3>${n}</h3><p>${w}</p></article>`).join('')}</div></div></section>`;}
 function marketMetricNotes(code,d){return ({
  '01.01':['External estimate for the specialised High-Purity Quartz market, not the much broader metallurgical-quartz market.','External growth estimate; actual realised growth depends on solar, semiconductor and fused-quartz demand.','Premium supply is concentrated because deposit quality, purification capability and customer qualification are difficult to replicate.'],
  '01.02':['External estimates for the global silicon-metal market across aluminium, chemicals, solar and semiconductor routes.','External growth estimate for the broad silicon-metal market rather than Artificial Intelligence demand alone.','China-led production capacity and pricing discipline shape global trade flows and regional furnace economics.'],
@@ -50,7 +50,22 @@ const D=window.ROSEBERG_DETAIL_APP.nodes;
 const chips=(m.affects||[]).map(a=>{const t=D[a]?(D[a].shortTitle||D[a].title):'';return `<a class="chk-chip" href="node.html?id=${a}" title="${esc(t)}">${a}</a>`;}).join('');
 const prec=m.precedent?`<div class="chk-precedent"><span class="chk-prec-label">DEMONSTRATED PRECEDENT</span><p>${esc(m.precedent)}</p></div>`:'';
 return `<div class="section chk-section" id="chokepoint" style="--sev:${sev}"><div class="chk-head"><div><div class="section-kicker">CHOKEPOINT ASSESSMENT</div><h2 class="section-title">Critical dependency and failure propagation</h2></div><div class="chk-sev chk-sev-${sev}"><span class="chk-sev-num">${sev}<em>/5</em></span><span class="chk-sev-word">${sevLabel}</span></div></div><div class="chk-stats"><div class="chk-stat"><span class="chk-stat-label">SINGLE POINT OF FAILURE</span><strong>${esc(c[0])}</strong></div>${sub?`<div class="chk-stat"><span class="chk-stat-label">SUBSTITUTION WINDOW</span><strong>${sub}</strong></div>`:''}<div class="chk-stat"><span class="chk-stat-label">DIRECT PROPAGATION</span><strong>${(m.affects||[]).length} node${(m.affects||[]).length===1?'':'s'}</strong></div></div><div class="grid2"><article class="card chk-card"><h3>Why it binds</h3><p>${c[1]}</p></article><article class="card chk-card"><h3>Substitution reality</h3><p>${c[2]}</p><p><strong>Propagation impact:</strong> ${c[3]}</p></article></div>${prec}${chips?`<div class="chk-affects"><span class="chk-prec-label">DIRECTLY AFFECTED NODES</span><div class="chk-chiprow">${chips}</div></div>`:''}<div class="chk-simrow"><button type="button" class="chk-sim-link" onclick="__openSimBoard('${d.code}')">SIMULATE FAILURE →</button></div></div>`;}
-function leadershipSection(d){const m=d.marketLeadership;if(!m){const q=d.leadershipQualitative;if(!q)return '';return `<div class="section leadership-section"><div class="section-heading-row"><div><div class="section-kicker">MARKET LEADERSHIP</div><h2 class="section-title">Market structure and concentration</h2></div><div class="section-tag">QUALITATIVE ASSESSMENT</div></div><div class="callout leadership-basis">${q}</div><div class="industry-note leadership-note">No share donut is presented for this node because reliable, comparable market-share data is not publicly available; concentration is assessed qualitatively pending further research.</div></div>`;}const rows=(m.rows||[]).map(r=>[r[0],r[1],r[2],r[3],r[4],String(r[5]||'').split(', ').filter(Boolean).map(sourceLink).join(' ')]);const legend=(m.segments||[]).map(s=>`<div class="leader-legend-row"><span class="leader-swatch" style="background:${s.color}"></span><span class="leader-name">${s.name}</span><span class="leader-share">${s.display}</span></div>`).join('');return `<div class="section leadership-section"><div class="section-heading-row"><div><div class="section-kicker">${m.eyebrow}</div><h2 class="section-title">${m.title}</h2></div><div class="section-tag">SHARE BASIS · LISTING · MARKET-CAP TREATMENT</div></div><div class="callout leadership-basis"><strong>Measurement basis:</strong> ${m.basis}<br><strong>Reference date:</strong> ${m.asOf}</div><div class="leadership-grid"><div class="leadership-chart-card"><div class="donut-wrap"><div class="donut" style="background:${leadershipGradient(m.segments)}"><div class="donut-center"><span>${m.centerTop}</span><strong>${m.centerValue}</strong><small>${m.centerBottom}</small></div></div></div><div class="leader-legend">${legend}</div></div><div class="leadership-table-wrap">${table(['LEADER / GROUP','SHARE','SHARE BASIS','LISTING / OWNERSHIP','MARKET-CAP TREATMENT','EVIDENCE'],rows,'leadership-table')}</div></div><div class="industry-note leadership-note">${m.note}</div></div>`;}
+
+
+function indiaCard(d){
+ const n=d.india;
+ if(!n)return listCard('India exposure',d.operators?.india||[]);
+ return `<article class="card india-card"><h3>India standing</h3><p>${n.standing||''}</p>${n.operators&&n.operators.length?`<div class="india-sub"><strong>Indian operators</strong><ul>${n.operators.map(o=>`<li>${o}</li>`).join('')}</ul></div>`:''}${n.dependence?`<div class="india-sub"><strong>Import dependence</strong><p>${n.dependence}</p></div>`:''}${n.policy&&n.policy.length?`<div class="india-sub"><strong>Policy</strong><ul>${n.policy.map(o=>`<li>${o}</li>`).join('')}</ul></div>`:''}${n.marketRead?`<div class="india-sub"><strong>Market read</strong><p>${n.marketRead}</p></div>`:''}</article>`;
+}
+function controlTables(d){
+ const cc=(d.marketLeadership&&d.marketLeadership.countryControl)||d.countryControl||[];
+ const pl=(d.marketLeadership&&d.marketLeadership.players)||[];
+ let out='';
+ if(pl.length)out+=`<div class="section-subblock"><h3 class="subtable-title">Named players and positions</h3>${table(['ENTITY','COUNTRY','POSITION AT THIS NODE','EVIDENCE'],pl.map(r=>[r[0],r[1],r[2],String(r[3]||'').split(', ').filter(Boolean).map(sourceLink).join(' ')]),'players-table')}</div>`;
+ if(cc.length)out+=`<div class="section-subblock"><h3 class="subtable-title">Country control</h3>${table(['COUNTRY','CONTROLS AT THIS NODE','EFFECT IF DISRUPTED'],cc,'country-table')}</div>`;
+ return out;
+}
+function leadershipSection(d){const m=d.marketLeadership;if(!m){const q=d.leadershipQualitative;if(!q)return '';return `<div class="section leadership-section"><div class="section-heading-row"><div><div class="section-kicker">MARKET LEADERSHIP</div><h2 class="section-title">Market structure and concentration</h2></div><div class="section-tag">QUALITATIVE ASSESSMENT</div></div><div class="callout leadership-basis">${q}</div>${controlTables(d)}<div class="industry-note leadership-note">No share donut is presented for this node because reliable, comparable market-share data is not publicly available; concentration is assessed qualitatively pending further research.</div></div>`;}const rows=(m.rows||[]).map(r=>[r[0],r[1],r[2],r[3],r[4],String(r[5]||'').split(', ').filter(Boolean).map(sourceLink).join(' ')]);const legend=(m.segments||[]).map(s=>`<div class="leader-legend-row"><span class="leader-swatch" style="background:${s.color}"></span><span class="leader-name">${s.name}</span><span class="leader-share">${s.display}</span></div>`).join('');return `<div class="section leadership-section"><div class="section-heading-row"><div><div class="section-kicker">${m.eyebrow}</div><h2 class="section-title">${m.title}</h2></div><div class="section-tag">${m.estimate?'RESEARCH ESTIMATE · SHARE BASIS · LISTING':'SHARE BASIS · LISTING · MARKET-CAP TREATMENT'}</div></div><div class="callout leadership-basis"><strong>Measurement basis:</strong> ${m.basis}<br><strong>Reference date:</strong> ${m.asOf}</div><div class="leadership-grid"><div class="leadership-chart-card"><div class="donut-wrap"><div class="donut" style="background:${leadershipGradient(m.segments)}"><div class="donut-center"><span>${m.centerTop}</span><strong>${m.centerValue}</strong><small>${m.centerBottom}</small></div></div></div><div class="leader-legend">${legend}</div></div><div class="leadership-table-wrap">${table(['LEADER / GROUP','SHARE','SHARE BASIS','LISTING / OWNERSHIP','MARKET-CAP TREATMENT','EVIDENCE'],rows,'leadership-table')}</div></div>${controlTables(d)}<div class="industry-note leadership-note">${m.note}</div></div>`;}
 
 function block2(d){const i=d.institutional||{};const companyRows=(d.companies||[]).map(r=>[r[0],r[1],r[2],r[3],r[4],String(r[5]||'').split(', ').filter(Boolean).map(sourceLink).join(' ')]);const historyRows=(i.history||[]).map(([a,b,c])=>[a,b,sourceLink(c)]);const mn=marketMetricNotes(d.code,d);return `<section id="section-analysis" class="block"><div class="block-header"><div><div class="block-index">INDUSTRY ANALYSIS</div><div class="block-title">Institutional Analysis</div></div><div class="block-status">MARKET · OPERATIONS · POLICY</div></div><div class="section"><h2 class="section-title">Industrial mechanics and transformation</h2><div class="grid2">${cards([['Plain-language mechanics',d.overview?.analogy||''],['Industrial transformation',d.overview?.transformation||''],['Industry economics',d.overview?.economics||''],['Dependencies and downstream links',d.overview?.dependencies||'']])}</div></div><div class="section"><h2 class="section-title">Market size, growth and demand outlook</h2><div class="grid3"><article class="metric-card" style="--metric:var(--blue)"><div class="metric-value">${d.marketIntelligence.marketSize}</div><div class="metric-label">GLOBAL MARKET REFERENCE</div><div class="metric-note">${d.marketIntelligence.marketYear}</div><div class="metric-explanation">${mn[0]}</div></article><article class="metric-card" style="--metric:var(--green)"><div class="metric-value">${d.marketIntelligence.growth}</div><div class="metric-label">GROWTH REFERENCE</div><div class="metric-note">${d.marketIntelligence.growthPeriod}</div><div class="metric-explanation">${mn[1]}</div></article><article class="metric-card" style="--metric:var(--amber)"><div class="metric-value">${d.marketIntelligence.concentration}</div><div class="metric-label">COMPETITIVE STRUCTURE</div><div class="metric-note">Node-level assessment</div><div class="metric-explanation">${mn[2]}</div></article></div><div class="callout" style="margin-top:14px"><strong>Market-measure boundary:</strong> ${d.marketIntelligence.marketBoundary}</div><div class="grid2" style="margin-top:14px">${listCard('Demand outlook',i.demandOutlook||[])}${listCard('Recent developments',d.marketIntelligence.recent||[])}</div></div>${transmissionSection(d)}${industryEffectSection(d)}${quantifiedSection(d)}${leadershipSection(d)}${chokepointSection(d)}<div class="section"><h2 class="section-title">Market leaders and competitive position</h2>${table(['ENTITY / REGION','DISCLOSED POSITION','RESEARCH INTERPRETATION'],i.marketShare||[])}</div><div class="section"><h2 class="section-title">Headquarters, facilities, listing and operating footprint</h2>${table(['ENTITY','STATUS / TICKER','HEADQUARTERS','FACILITIES / OPERATIONS','CAPACITY / EXPOSURE'],i.footprint||[])}</div><div class="section"><h2 class="section-title">Capacity, utilisation and expansion pipeline</h2>${table(['ASSET / METRIC','CAPACITY / SCALE','STATUS / UTILISATION','ANALYTICAL COMMENT'],i.capacity||[])}</div><div class="section"><h2 class="section-title">Suppliers, inputs, customers and buyers</h2><div class="grid2">${listCard('Upstream suppliers and inputs',i.supplyDemand?.suppliers||[])}${listCard('Downstream customers and buyers',i.supplyDemand?.customers||[])}</div></div><div class="section"><h2 class="section-title">Trade flows, logistics routes and regional economics</h2>${rowList(i.tradeRoutes||[])}<div style="height:12px"></div>${rowList(i.regionalEconomics||[])}</div><div class="section"><h2 class="section-title">Country concentration and supply security</h2>${listCard('Supply-security assessment',i.supplySecurity||[])}</div><div class="section"><h2 class="section-title">Company exposure quality</h2>${table(['ENTITY','STATUS','NODE RELATIONSHIP','EVIDENCE QUALITY','RESEARCH NOTE','SOURCES'],companyRows)}</div><div class="section"><h2 class="section-title">Scenario analysis</h2>${table(['SCENARIO','CONDITIONS','NODE CONSEQUENCE'],i.scenarios||[])}</div><div class="section"><h2 class="section-title">Valuation and credit transmission</h2>${listCard('Neutral analytical implications',i.valuationCredit||[])}</div><div class="section"><h2 class="section-title">Conditions and invalidation</h2><div class="grid2">${listCard('Conditions supporting strategic relevance',i.conditions?.supporting||[],'flag-positive')}${listCard('Evidence that weakens the analytical case',i.conditions?.weakening||[],'flag-negative')}</div></div><div class="section"><h2 class="section-title">Evidence history</h2>${table(['DATE','DEVELOPMENT','SOURCE'],historyRows)}</div><div class="section"><h2 class="section-title">Strengths, weaknesses, opportunities and threats</h2><div class="grid4 swot-grid">${listCard('Strengths',d.swot?.strengths||[],'swot-card swot-strength')}${listCard('Weaknesses',d.swot?.weaknesses||[],'swot-card swot-weakness')}${listCard('Opportunities',d.swot?.opportunities||[],'swot-card swot-opportunity')}${listCard('Threats',d.swot?.threats||[],'swot-card swot-threat')}</div></div><div class="section compact-section">${sourceCards(d.sources||[])}</div><div class="footer-note">Roseberg AI Map presents neutral industrial, market and company-exposure analysis. Structural scores and directional labels describe operating conditions by value-chain position and are not security ratings, price targets or investment recommendations.</div></section>`;}
 function block3(d){const next=d.nextSteps?.[0];if(!next)return '';const canOpen=Boolean(APP.nodes[next.code]);return `<section id="section-next" class="block"><div class="block-header"><div><div class="block-index">PROCESS CONTINUATION</div><div class="block-title">Next Step in the Value Chain</div></div><div class="block-status">${next.code}</div></div><div class="callout">The value chain continues into the following operating stage. The relationship shown here is sequential and does not imply that every unit of output follows the same downstream route.</div><div class="next-grid section"><article class="next-card ${canOpen?'has-link':'no-link'}" ${canOpen?`data-node="${next.code}"`:''}><div class="next-path">${next.path}</div><div class="next-code">${next.code}</div><div class="next-title">${next.title}</div><div class="next-why">${next.why}</div></article></div></section>`;}
@@ -77,7 +92,12 @@ function ecoLayout(d){
  const bySector={};[...related].forEach(c=>{const s=sectorOf(c);(bySector[s]=bySector[s]||[]).push(c);});
  Object.values(bySector).forEach(a=>a.sort());
  const sectors=sectorOrder().filter(s=>bySector[s]);
- const L={cardW:264,cardH:196,colGap:40,rowGap:44,padX:30,padTop:14,headH:78,padBottom:30,gapX:340,gapY:300,maxRowW:2900};
+ const homeSector=sectorOf(d.code);
+ const nCross=rel.affects.filter(e=>sectorOf(e.code)!==homeSector).length+rel.affectedBy.filter(e=>sectorOf(e.code)!==homeSector).length;
+ const gf=1+Math.min(1.6,Math.max(0,nCross-6)*0.08); // crowd factor: >6 cross-links widens routing channels
+ const lane=Math.min(210,Math.max(0,nCross)*10); // corridor width scales with traffic
+ const L={cardW:264,cardH:196,colGap:Math.round(40*gf),rowGap:Math.round(44*gf),padX:Math.round(30*gf),padTop:14,headH:78,padBottom:Math.round(30*gf),gapX:130+lane,gapY:120+lane,maxRowW:2900};
+ // dense maps: spread horizontally instead of stacking - budget width from total box area targeting ~16:10
  const boxes=sectors.map(s=>{
  const n=bySector[s].length;
  const cols=n<=2?n:n<=6?2:3;
@@ -86,13 +106,45 @@ function ecoLayout(d){
  const h=L.padTop+L.headH+rows*L.cardH+(rows-1)*L.rowGap+L.padBottom;
  return{id:s,codes:bySector[s],cols,rows,w,h};
  });
- // shelf packing
- let x=40,y=40,rowH=0,worldW=0;
- boxes.forEach(b=>{
- if(x>40&&x+b.w>L.maxRowW){x=40;y+=rowH+L.gapY;rowH=0;}
- b.x=x;b.y=y;x+=b.w+L.gapX;rowH=Math.max(rowH,b.h);worldW=Math.max(worldW,b.x+b.w);
+ // shelf packing (sector order preserved; dense maps get a wider row budget)
+ // choose row count targeting ~16:10, then balance ordered boxes into exactly that many rows
+ let rowsOf=[boxes];
+ if(boxes.length>=4){
+   const totW=boxes.reduce((a,b)=>a+b.w,0)+L.gapX*(boxes.length-1);
+   const avgH=boxes.reduce((a,b)=>a+b.h,0)/boxes.length;
+   let best=1,bestD=Infinity;
+   for(let r=1;r<=boxes.length;r++){
+     const ww=totW/r, hh=r*(avgH+L.gapY)-L.gapY;
+     const d=Math.abs(hh/ww-0.625);
+     if(d<bestD){bestD=d;best=r;}
+   }
+   if(best>1){
+     // min-max contiguous partition into `best` rows (binary search on row capacity)
+     const wOf=b=>b.w;
+     const fits=cap=>{let used=1,cur=0;for(const b of boxes){const need=(cur?L.gapX:0)+wOf(b);if(cur&&cur+need>cap){used++;cur=wOf(b);}else cur+=need;if(wOf(b)>cap)return false;}return used<=best;};
+     let lo=Math.max(...boxes.map(wOf)),hi=totW;
+     while(lo<hi){const mid=(lo+hi)>>1;if(fits(mid))hi=mid;else lo=mid+1;}
+     rowsOf=[];let cur=[],curW=0;
+     for(const b of boxes){const need=(curW?L.gapX:0)+b.w;if(curW&&curW+need>lo){rowsOf.push(cur);cur=[b];curW=b.w;}else{cur.push(b);curW+=need;}}
+     if(cur.length)rowsOf.push(cur);
+   }
+ }
+ // hoist: if the final row fits in dead space to the right of the row above (width and height wise), merge it up
+ if(rowsOf.length>=2){
+   const prev=rowsOf[rowsOf.length-2],last=rowsOf[rowsOf.length-1];
+   const wOfRow=r=>r.reduce((a,b)=>a+b.w,0)+L.gapX*(r.length-1);
+   const prevW=wOfRow(prev),lastW=wOfRow(last);
+   const prevH=Math.max(...prev.map(b=>b.h)),lastH=Math.max(...last.map(b=>b.h));
+   const budget=Math.max(L.maxRowW,prevW); // don't grow the world wider than it already is
+   if(prevW+L.gapX+lastW<=budget&&lastH<=prevH){rowsOf.splice(rowsOf.length-2,2,prev.concat(last));}
+ }
+ let y=40,worldW=0;
+ rowsOf.forEach(row=>{
+   let x=40,rowH=0;
+   row.forEach(b=>{b.x=x;b.y=y;x+=b.w+L.gapX;rowH=Math.max(rowH,b.h);worldW=Math.max(worldW,b.x+b.w);});
+   y+=rowH+L.gapY;
  });
- const worldH=y+rowH+40;
+ const worldH=y-L.gapY+40;
  // absolute node rects
  const nodeRect={};
  boxes.forEach(b=>{
@@ -120,6 +172,7 @@ function ecoRouteAll(lay,crossEdges){
  };
  cards.forEach(r=>mark(r.x+2,r.y+2,r.x+r.w-2,r.y+r.h-2,blocked,1));
  lay.boxes.forEach(b=>{mark(b.x,b.y,b.x+b.w,b.y+92,blocked,1);mark(b.x,b.y,b.x+b.w,b.y+b.h,foreign,1);});
+ const TRANSIT=12,WAIVE=72; // box interiors are near-forbidden except close to the two endpoint cards
  const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
  const cellOf=(px,py)=>[Math.floor(px/CELL),Math.floor(py/CELL)];
  const perim=r=>{ // free cells hugging the card's outer edge
@@ -147,6 +200,8 @@ function ecoRouteAll(lay,crossEdges){
    return da-db;});
  for(const e of order){
    const A=lay.nodeRect[e.from],B=lay.nodeRect[e.to];
+   const wr=[{x0:A.x-WAIVE,y0:A.y-WAIVE,x1:A.x+A.w+WAIVE,y1:A.y+A.h+WAIVE},{x0:B.x-WAIVE,y0:B.y-WAIVE,x1:B.x+B.w+WAIVE,y1:B.y+B.h+WAIVE}];
+   const waived=(cx,cy)=>{const px=cx*CELL+CELL/2,py=cy*CELL+CELL/2;return (px>=wr[0].x0&&px<=wr[0].x1&&py>=wr[0].y0&&py<=wr[0].y1)||(px>=wr[1].x0&&px<=wr[1].x1&&py>=wr[1].y0&&py<=wr[1].y1);};
    const starts=perim(A),goalSet=new Set(perim(B));
    if(!starts.length||!goalSet.size){results.set(e,null);continue;}
    const bcx=(B.x+B.w/2)/CELL,bcy=(B.y+B.h/2)/CELL;
@@ -168,7 +223,7 @@ function ecoRouteAll(lay,crossEdges){
        if(nx<0||ny<0||nx>=W||ny>=H)continue;
        const nc=ny*W+nx;
        if(blocked[nc])continue;
-       let w2=1+(foreign[nc]?FOREIGN:0)+occ[nc]*OCC;
+       let w2=1+(foreign[nc]?(waived(nx,ny)?FOREIGN:TRANSIT):0)+occ[nc]*OCC;
        if(nd!==dir)w2+=TURN;
        const nst=nc*4+nd;
        const ng=g0+w2;
@@ -198,14 +253,26 @@ function ecoRouteAll(lay,crossEdges){
      else{n[1]=p[1]<r.y?r.y:r.y+r.h;n[0]=Math.max(r.x+8,Math.min(p[0],r.x+r.w-8));}
      return n;
    };
-   if(sp.length>=2){
-     const s0=snap(sp[0],sp[1],A);
-     if(sp[0][1]===sp[1][1])sp[1]=[sp[1][0],s0[1]];else sp[1]=[s0[0],sp[1][1]];
-     sp[0]=s0;
-     const en=snap(sp[sp.length-1],sp[sp.length-2],B);
-     if(sp[sp.length-1][1]===sp[sp.length-2][1])sp[sp.length-2]=[sp[sp.length-2][0],en[1]];else sp[sp.length-2]=[en[0],sp[sp.length-2][1]];
-     sp[sp.length-1]=en;
-   }
+   const J=14; // jog offset just outside the card edge
+   const applySnap=(atStart)=>{
+     const i0=atStart?0:sp.length-1, i1=atStart?1:sp.length-2;
+     const p=sp[i0], q=sp[i1], r=atStart?A:B;
+     const n=snap(p,q,r);
+     const horiz=p[1]===q[1];
+     const moved=horiz?Math.abs(n[1]-p[1])>0.5:Math.abs(n[0]-p[0])>0.5;
+     if(!moved){ if(horiz)sp[i1]=[q[0],n[1]];else sp[i1]=[n[0],q[1]]; sp[i0]=n; return; }
+     // clamp shifted the line off its routed lane: jog at the card edge instead of dragging the neighbour
+     if(horiz){
+       const jx=n[0]+(p[0]<r.x? -J : J); // just outside approached edge
+       const m1=[jx,q[1]], m2=[jx,n[1]];
+       if(atStart)sp.splice(0,1,n,m2,m1); else sp.splice(sp.length-1,1,m1,m2,n);
+     }else{
+       const jy=n[1]+(p[1]<r.y? -J : J);
+       const m1=[q[0],jy], m2=[n[0],jy];
+       if(atStart)sp.splice(0,1,n,m2,m1); else sp.splice(sp.length-1,1,m1,m2,n);
+     }
+   };
+   if(sp.length>=2){ applySnap(false); applySnap(true); }
    const dpath='M '+sp.map(p=>p[0]+' '+p[1]).join(' L ');
    const pe=sp[sp.length-1],pq=sp[sp.length-2];
    let dir2;
@@ -355,16 +422,17 @@ function renderNode(code,tab){
  ?`${ecosystemMapSection(d)}${supplyChainSection(d)}`
  :`${block1(d)}${block2(d)}${block3(d)}${glossary(d)}`;
  root.innerHTML=`${header()}<main class="page"><div class="hero-nav"><a class="map-back-link" href="${mapHref(d.code)}">← RETURN TO MAP · ${d.code}</a><select class="node-selector" id="node-selector" aria-label="Select node">${options}</select></div><section class="hero" style="--node-color:${color}"><div class="hero-main"><div class="hero-code">${d.phase}</div><h1>${d.title}</h1><p class="hero-subtitle">${d.subtitle}</p><div class="hero-asof">DATA AS OF 23 JUL 2026 · COMPILED FROM PUBLIC REPORTING</div><div class="baseline-note"><strong>Evidence discipline:</strong> quantitative claims are included only where the cited sources support a comparable node-level measure. Where disclosure is inconsistent, the page states that directly rather than inventing precision.</div></div><div class="hero-side">${heroFacts(d.code,d)}</div></section>${tabBar(tab)}<div class="detail-layout" style="--node-color:${color}"><nav class="toc">${tocFor(tab)}</nav><main class="detail-main">${main}</main></div></main>`;
- const nav=(next,nextTab)=>{history.replaceState(null,'',selfNodeHrefTab(next,nextTab||tab));renderNode(next,nextTab||tab);window.scrollTo(0,0);};
+ const nav=(next,nextTab)=>{setHist(selfNodeHrefTab(next,nextTab||tab));renderNode(next,nextTab||tab);window.scrollTo(0,0);};
  root.querySelector('#node-selector')?.addEventListener('change',e=>nav(e.target.value));
  root.querySelectorAll('.next-card.has-link[data-node]').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.node)));
  root.querySelectorAll('a[data-node]').forEach(a=>{a.addEventListener('pointerdown',e=>e.stopPropagation());a.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();nav(a.dataset.node);});});
- root.querySelectorAll('.node-tab').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab!==tab){history.replaceState(null,'',selfNodeHrefTab(d.code,b.dataset.tab));renderNode(d.code,b.dataset.tab);window.scrollTo(0,0);}}));
+ root.querySelectorAll('.node-tab').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.tab!==tab){setHist(selfNodeHrefTab(d.code,b.dataset.tab));renderNode(d.code,b.dataset.tab);window.scrollTo(0,0);}}));
  if(tab==='map')initEcoPanZoom(root);
  bindToc(root);
 }
 
 function bindToc(root){const buttons=[...root.querySelectorAll('.toc-link[data-scroll-target]')];const sections=[...root.querySelectorAll('.block')];const setActive=id=>buttons.forEach(btn=>btn.classList.toggle('active',btn.dataset.scrollTarget===id));buttons.forEach(btn=>btn.addEventListener('click',()=>{const target=root.querySelector('#'+btn.dataset.scrollTarget);if(target){setActive(btn.dataset.scrollTarget);target.scrollIntoView({behavior:'smooth',block:'start'});}}));let scheduled=false;const update=()=>{scheduled=false;let current=sections[0];sections.forEach(s=>{if(s.getBoundingClientRect().top<=112)current=s;});if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-24)current=sections[sections.length-1];setActive(current.id);};const onScroll=()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(update);};window.addEventListener('scroll',onScroll,{passive:true});update();}
+function setHist(u){try{history.replaceState(null,'',u);}catch(e){}}
 function boot(){const q=new URLSearchParams(location.search);const code=q.get('id')||Object.keys(APP.nodes)[0];renderNode(code,q.get('tab')==='map'?'map':'info');}window.addEventListener('popstate',boot);document.addEventListener('DOMContentLoaded',boot);
 
 // back-to-top
