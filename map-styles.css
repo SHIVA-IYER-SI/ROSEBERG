@@ -11,7 +11,7 @@ html[data-theme="dark"]{color-scheme:dark;--mtc0:#dce5ee;--mtc1:#d0dde8;--mtc2:#
 /* ===== chain connectors ===== */
 .chain-halo{fill:none;stroke:var(--mtc35);stroke-width:22;stroke-linecap:round;stroke-linejoin:round}
 .chain-link{fill:none;stroke:var(--mtc19);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
-.chain-arrowhead{fill:var(--mtc19)}
+.chain-arrowhead{fill:none;stroke:var(--mtc19);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .chain-cap{position:absolute;z-index:18;transform:translate(-50%,-50%);width:250px;padding:12px 15px;background:var(--mtc35);border:1px solid var(--mtc26);border-radius:12px;box-shadow:var(--shadow2);text-align:left}
 .chain-cap-route{color:var(--mtc5);font:900 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}
 .chain-cap-text{margin-top:7px;color:var(--mtc7);font-size:13px;font-weight:700;line-height:1.4}
@@ -81,14 +81,14 @@ html[data-theme="dark"] .sector-band:hover{filter:brightness(1.15)}
 /* flow and connector routing */
 .chain-halo{fill:none;stroke:var(--mtc35);stroke-width:14;stroke-linecap:round;opacity:.9}
 .chain-link{fill:none;stroke:var(--accent-chain,#3d586b);stroke-width:4.5;stroke-linecap:round}
-.chain-arrowhead{fill:var(--accent-chain,#3d586b)}
+.chain-arrowhead{fill:none;stroke:var(--accent-chain,#3d586b);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 html[data-theme="dark"] .chain-link{stroke:#6f8ea6}
-html[data-theme="dark"] .chain-arrowhead{fill:#6f8ea6}
+html[data-theme="dark"] .chain-arrowhead{stroke:#6f8ea6}
 .chain-cap{transform:translate(-50%,0);z-index:22}
 .node-flow{fill:none;stroke:var(--mtc19);stroke-width:2;stroke-dasharray:none;opacity:.55}
-.flow-arrowhead{fill:var(--mtc19)}
+.flow-arrowhead{fill:none;stroke:var(--mtc19);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 html[data-theme="dark"] .node-flow{stroke:#4f7692}
-html[data-theme="dark"] .flow-arrowhead{fill:#4f7692}
+html[data-theme="dark"] .flow-arrowhead{stroke:#4f7692}
 .side-active{border:1px solid var(--mtc29);background:var(--mtc33);border-radius:8px}
 
 /* orthogonal routing chrome */

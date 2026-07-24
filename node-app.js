@@ -77,7 +77,7 @@ function ecoLayout(d){
  const bySector={};[...related].forEach(c=>{const s=sectorOf(c);(bySector[s]=bySector[s]||[]).push(c);});
  Object.values(bySector).forEach(a=>a.sort());
  const sectors=sectorOrder().filter(s=>bySector[s]);
- const L={cardW:264,cardH:196,colGap:18,rowGap:26,padX:18,padTop:14,headH:78,padBottom:18,gapX:250,gapY:220,maxRowW:2700};
+ const L={cardW:264,cardH:196,colGap:40,rowGap:44,padX:30,padTop:14,headH:78,padBottom:30,gapX:340,gapY:300,maxRowW:2900};
  const boxes=sectors.map(s=>{
  const n=bySector[s].length;
  const cols=n<=2?n:n<=6?2:3;
@@ -107,17 +107,144 @@ function ecoLayout(d){
  affectedBy.forEach((e,c)=>edges.push({from:c,to:d.code,why:e.why}));
  return{boxes,nodeRect,edges,worldW:worldW+40,worldH,affects,affectedBy,related};
 }
-function ecoRoute(a,b){
- const ac={x:a.x+a.w/2,y:a.y+a.h/2},bc={x:b.x+b.w/2,y:b.y+b.h/2};
- const dx=bc.x-ac.x,dy=bc.y-ac.y;let sx,sy,ex,ey,d,lx,ly;
- if(Math.abs(dx)>=Math.abs(dy)){
- sx=dx>0?a.x+a.w:a.x;sy=ac.y;ex=dx>0?b.x:b.x+b.w;ey=bc.y;
- const mx=(sx+ex)/2;d=`M ${sx} ${sy} H ${mx} V ${ey} H ${ex}`;lx=mx;ly=(sy+ey)/2;
- }else{
- sx=ac.x;sy=dy>0?a.y+a.h:a.y;ex=bc.x;ey=dy>0?b.y:b.y+b.h;
- const my=(sy+ey)/2;d=`M ${sx} ${sy} V ${my} H ${ex} V ${ey}`;lx=(sx+ex)/2;ly=my;
+
+function ecoRouteAll(lay,crossEdges){
+ const CELL=12,TURN=7,OCC=9,FOREIGN=2;
+ const W=Math.ceil((lay.worldW+80)/CELL),H=Math.ceil((lay.worldH+80)/CELL);
+ const blocked=new Uint8Array(W*H),foreign=new Uint8Array(W*H),occ=new Uint16Array(W*H);
+ const cards=Object.values(lay.nodeRect);
+ const mark=(x0,y0,x1,y1,arr,v)=>{
+   const cx0=Math.max(0,Math.floor(x0/CELL)),cy0=Math.max(0,Math.floor(y0/CELL));
+   const cx1=Math.min(W-1,Math.floor(x1/CELL)),cy1=Math.min(H-1,Math.floor(y1/CELL));
+   for(let cy=cy0;cy<=cy1;cy++)for(let cx=cx0;cx<=cx1;cx++)arr[cy*W+cx]=v;
+ };
+ cards.forEach(r=>mark(r.x+2,r.y+2,r.x+r.w-2,r.y+r.h-2,blocked,1));
+ lay.boxes.forEach(b=>{mark(b.x,b.y,b.x+b.w,b.y+92,blocked,1);mark(b.x,b.y,b.x+b.w,b.y+b.h,foreign,1);});
+ const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
+ const cellOf=(px,py)=>[Math.floor(px/CELL),Math.floor(py/CELL)];
+ const perim=r=>{ // free cells hugging the card's outer edge
+   const out=[];
+   const cx0=Math.floor((r.x)/CELL)-1,cx1=Math.floor((r.x+r.w)/CELL)+1;
+   const cy0=Math.floor((r.y)/CELL)-1,cy1=Math.floor((r.y+r.h)/CELL)+1;
+   for(let cx=cx0;cx<=cx1;cx++)for(const cy of [cy0,cy1])if(cx>=0&&cy>=0&&cx<W&&cy<H&&!blocked[cy*W+cx])out.push(cy*W+cx);
+   for(let cy=cy0+1;cy<cy1;cy++)for(const cx of [cx0,cx1])if(cx>=0&&cy>=0&&cx<W&&cy<H&&!blocked[cy*W+cx])out.push(cy*W+cx);
+   return out;
+ };
+ // binary heap
+ function Heap(){this.a=[];}
+ Heap.prototype.push=function(k,p){const a=this.a;a.push([p,k]);let i=a.length-1;
+   while(i>0){const j=(i-1)>>1;if(a[j][0]<=a[i][0])break;const t=a[i];a[i]=a[j];a[j]=t;i=j;}};
+ Heap.prototype.pop=function(){const a=this.a;const top=a[0];const last=a.pop();
+   if(a.length){a[0]=last;let i=0;for(;;){const l=2*i+1,r=l+1;let m=i;
+     if(l<a.length&&a[l][0]<a[m][0])m=l;if(r<a.length&&a[r][0]<a[m][0])m=r;
+     if(m===i)break;const t=a[i];a[i]=a[m];a[m]=t;i=m;}}
+   return top;};
+ const results=new Map();
+ const order=[...crossEdges].sort((a,b)=>{
+   const ra=lay.nodeRect[a.from],rb=lay.nodeRect[a.to];
+   const rc=lay.nodeRect[b.from],rd=lay.nodeRect[b.to];
+   const da=Math.abs(ra.x-rb.x)+Math.abs(ra.y-rb.y),db=Math.abs(rc.x-rd.x)+Math.abs(rc.y-rd.y);
+   return da-db;});
+ for(const e of order){
+   const A=lay.nodeRect[e.from],B=lay.nodeRect[e.to];
+   const starts=perim(A),goalSet=new Set(perim(B));
+   if(!starts.length||!goalSet.size){results.set(e,null);continue;}
+   const bcx=(B.x+B.w/2)/CELL,bcy=(B.y+B.h/2)/CELL;
+   const hFn=id=>{const cx=id%W,cy=(id/W)|0;return Math.abs(cx-bcx)+Math.abs(cy-bcy);};
+   const NST=W*H*4;
+   const gCost=new Float64Array(NST).fill(Infinity);
+   const par=new Int32Array(NST).fill(-1);
+   const hp=new Heap();
+   for(const c of starts)for(let dd=0;dd<4;dd++){const st=c*4+dd;gCost[st]=0;hp.push(st,hFn(c));}
+   let goalState=-1;
+   while(hp.a.length){
+     const[,st]=hp.pop();
+     const c=(st/4)|0,dir=st&3;
+     const g0=gCost[st];
+     if(goalSet.has(c)){goalState=st;break;}
+     const cx=c%W,cy=(c/W)|0;
+     for(let nd=0;nd<4;nd++){
+       const nx=cx+DIRS[nd][0],ny=cy+DIRS[nd][1];
+       if(nx<0||ny<0||nx>=W||ny>=H)continue;
+       const nc=ny*W+nx;
+       if(blocked[nc])continue;
+       let w2=1+(foreign[nc]?FOREIGN:0)+occ[nc]*OCC;
+       if(nd!==dir)w2+=TURN;
+       const nst=nc*4+nd;
+       const ng=g0+w2;
+       if(ng<gCost[nst]-1e-9){gCost[nst]=ng;par[nst]=st;hp.push(nst,ng+hFn(nc));}
+     }
+   }
+   if(goalState<0){results.set(e,null);continue;}
+   // reconstruct
+   const cellsPath=[];
+   for(let st=goalState;st>=0;st=par[st])cellsPath.push((st/4)|0);
+   cellsPath.reverse();
+   cellsPath.forEach(c=>occ[c]++);
+   // to points
+   let pts=cellsPath.map(c=>[(c%W)*CELL+CELL/2,((c/W)|0)*CELL+CELL/2]);
+   // collapse collinear
+   const sp=[pts[0]];
+   for(let i=1;i<pts.length-1;i++){
+     const a=sp[sp.length-1],b=pts[i],c=pts[i+1];
+     if((a[0]===b[0]&&b[0]===c[0])||(a[1]===b[1]&&b[1]===c[1]))continue;
+     sp.push(b);
+   }
+   sp.push(pts[pts.length-1]);
+   // snap ends onto card edges
+   const snap=(p,q,r)=>{ // p end point, q its neighbour, r card
+     const n=[p[0],p[1]];
+     if(p[1]===q[1]){n[0]=p[0]<r.x?r.x:r.x+r.w;n[1]=Math.max(r.y+8,Math.min(p[1],r.y+r.h-8));}
+     else{n[1]=p[1]<r.y?r.y:r.y+r.h;n[0]=Math.max(r.x+8,Math.min(p[0],r.x+r.w-8));}
+     return n;
+   };
+   if(sp.length>=2){
+     const s0=snap(sp[0],sp[1],A);
+     if(sp[0][1]===sp[1][1])sp[1]=[sp[1][0],s0[1]];else sp[1]=[s0[0],sp[1][1]];
+     sp[0]=s0;
+     const en=snap(sp[sp.length-1],sp[sp.length-2],B);
+     if(sp[sp.length-1][1]===sp[sp.length-2][1])sp[sp.length-2]=[sp[sp.length-2][0],en[1]];else sp[sp.length-2]=[en[0],sp[sp.length-2][1]];
+     sp[sp.length-1]=en;
+   }
+   const dpath='M '+sp.map(p=>p[0]+' '+p[1]).join(' L ');
+   const pe=sp[sp.length-1],pq=sp[sp.length-2];
+   let dir2;
+   if(pe[1]===pq[1])dir2=pe[0]>pq[0]?'r':'l';else dir2=pe[1]>pq[1]?'d':'u';
+   results.set(e,{d:dpath,tip:{x:pe[0],y:pe[1],dir:dir2}});
  }
- return{d,lx,ly};
+ return results;
+}
+function ecoRoute(a,b,shift,abox,bbox,entryOff){
+ shift=shift||0;entryOff=entryOff||0;
+ const cross=abox&&bbox&&abox!==bbox;
+ const ac={x:a.x+a.w/2,y:a.y+a.h/2},bc={x:b.x+b.w/2,y:b.y+b.h/2};
+ const dx=bc.x-ac.x,dy=bc.y-ac.y;let sx,sy,ex,ey,d,lx,ly,segs,tip;
+ if(Math.abs(dx)>=Math.abs(dy)){
+ sx=dx>0?a.x+a.w:a.x;sy=ac.y;
+ if(cross){ex=dx>0?bbox.x-2:bbox.x+bbox.w+2;}else{ex=dx>0?b.x-3:b.x+b.w+3;}
+ ey=bc.y+entryOff;
+ let mx=(sx+ex)/2+shift;
+ if(cross){
+   const lo=dx>0?abox.x+abox.w+16:ex+16, hi=dx>0?ex-16:abox.x-16;
+   if(lo<hi)mx=Math.max(lo,Math.min(mx,hi));else mx=(sx+ex)/2;
+ }
+ d=`M ${sx} ${sy} H ${mx} V ${ey} H ${ex}`;lx=mx;ly=(sy+ey)/2;
+ tip={x:ex,y:ey,dir:dx>0?'r':'l'};
+ segs=[{o:'h',x1:Math.min(sx,mx),x2:Math.max(sx,mx),y:sy},{o:'v',y1:Math.min(sy,ey),y2:Math.max(sy,ey),x:mx},{o:'h',x1:Math.min(mx,ex),x2:Math.max(mx,ex),y:ey}];
+ }else{
+ sx=ac.x;sy=dy>0?a.y+a.h:a.y;
+ if(cross){ey=dy>0?bbox.y-2:bbox.y+bbox.h+2;}else{ey=dy>0?b.y-3:b.y+b.h+3;}
+ ex=bc.x+entryOff;
+ let my=(sy+ey)/2+shift;
+ if(cross){
+   const lo=dy>0?abox.y+abox.h+16:ey+16, hi=dy>0?ey-16:abox.y-16;
+   if(lo<hi)my=Math.max(lo,Math.min(my,hi));else my=(sy+ey)/2;
+ }
+ d=`M ${sx} ${sy} V ${my} H ${ex} V ${ey}`;lx=(sx+ex)/2;ly=my;
+ tip={x:ex,y:ey,dir:dy>0?'d':'u'};
+ segs=[{o:'v',y1:Math.min(sy,my),y2:Math.max(sy,my),x:sx},{o:'h',x1:Math.min(sx,ex),x2:Math.max(sx,ex),y:my},{o:'v',y1:Math.min(my,ey),y2:Math.max(my,ey),x:ey}];
+ }
+ return{d,lx,ly,segs,tip,cross};
 }
 function ecoNodeCard(code,current,rect){
  const n=APP.nodes[code];const short=Object.values(window.ROSEBERG_DETAIL_APP.nodes).length?n:null;
@@ -130,33 +257,32 @@ function ecosystemMapSection(d){
  const FAMS=window.SECTOR_FAMILY||{};const FAM_LABEL={materials:'MATERIALS & EQUIPMENT',silicon:'SILICON',infra:'INFRASTRUCTURE',software:'SOFTWARE & MODELS',economy:'REAL ECONOMY',overlay:'SYSTEM OVERLAY'};
  const sectorsHtml=lay.boxes.map(b=>{const fam=FAMS[b.id]||'silicon';return `<section class="sector fam-${fam} eco-sector-box ${b.id===sectorOf(d.code)?'eco-home':''}${b.id==='OV'?' overlay-sector':''}" style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px"><div class="sector-band"><div class="sector-folio">${b.id}</div><div class="sector-band-main"><div class="sector-kicker">${b.id==='OV'?'SYSTEM OVERLAY':(FAM_LABEL[fam]||'')}</div><div class="sector-title">${esc(sectorTitle(b.id))}</div></div><div class="sector-count">${b.codes.length} ${b.codes.length===1?'NODE':'NODES'}</div></div><div class="sector-accent"></div></section>`;}).join('');
  const nodesHtml=Object.entries(lay.nodeRect).map(([c,r])=>ecoNodeCard(c,d.code,r)).join('');
- const showLabels=lay.edges.length<=8;
- const linesHtml=lay.edges.map(e=>{
- const r=ecoRoute(lay.nodeRect[e.from],lay.nodeRect[e.to]);
- return `<path class="link-halo" d="${r.d}"></path><path class="link ${e.from===d.code?'main':'support'}" d="${r.d}" marker-end="url(#ecoarrow)"></path>`;
+ const LANE=42;
+ const edgeShift=new Map();
+ lay.edges.forEach((e,i)=>{const n=lay.edges.length;edgeShift.set(e,(i-(n-1)/2)*Math.min(LANE,300/Math.max(n-1,1)));});
+ const boxOf=code=>{const rr=lay.nodeRect[code];if(!rr)return null;const cx=rr.x+rr.w/2,cy=rr.y+rr.h/2;return lay.boxes.find(b=>cx>=b.x&&cx<=b.x+b.w&&cy>=b.y&&cy<=b.y+b.h)||null;};
+ const crossEdges=lay.edges.filter(e=>boxOf(e.from)!==boxOf(e.to));
+ const useColors=crossEdges.length>=4;
+ const PAL=['#1a5f8f','#8a5f26','#2e7d4f','#8f3d5e','#5b4ea3','#b26a1f','#2a7f8f','#a3403a','#556b1f','#7a5b8f','#3d6b9e','#6b8a26'];
+ const edgeColor=new Map();crossEdges.forEach((e,i)=>edgeColor.set(e,useColors?PAL[i%PAL.length]:'var(--tc21)'));
+ const routed=ecoRouteAll(lay,crossEdges);
+ const routeOf=e=>routed.get(e)||ecoRoute(lay.nodeRect[e.from],lay.nodeRect[e.to],edgeShift.get(e),boxOf(e.from),boxOf(e.to),0);
+ const chev=t=>{const L=9,W2=7;
+   if(t.dir==='r')return `M ${t.x-L} ${t.y-W2} L ${t.x} ${t.y} L ${t.x-L} ${t.y+W2}`;
+   if(t.dir==='l')return `M ${t.x+L} ${t.y-W2} L ${t.x} ${t.y} L ${t.x+L} ${t.y+W2}`;
+   if(t.dir==='d')return `M ${t.x-W2} ${t.y-L} L ${t.x} ${t.y} L ${t.x+W2} ${t.y-L}`;
+   return `M ${t.x-W2} ${t.y+L} L ${t.x} ${t.y} L ${t.x+W2} ${t.y+L}`;};
+ const seqRe2=/^(Previous|Next) sequential stage/;
+ const linesHtml=crossEdges.map((e,i)=>{
+ const r=routeOf(e);
+ const col=edgeColor.get(e);
+ const why=seqRe2.test(e.why)?'Sequential stage flow':e.why;
+ return `<path class="link-halo" data-ei="${i}" d="${r.d}"></path><path class="link" data-ei="${i}" d="${r.d}" style="stroke:${col}"></path><path class="eco-tip" data-ei="${i}" d="${chev(r.tip)}" style="stroke:${col}"></path><path class="link-hit" data-ei="${i}" data-from="${esc(e.from)}" data-to="${esc(e.to)}" data-why="${esc(why)}" d="${r.d}"></path>`;
  }).join('');
- const cardBoxes=Object.values(lay.nodeRect).map(r=>({x:r.x,y:r.y,w:r.w,h:r.h}));
- const hit=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
- const placed=[];
- const labelsHtml=showLabels?lay.edges.filter(e=>!/^(Previous|Next) sequential stage/.test(e.why)).map(e=>{
- const r=ecoRoute(lay.nodeRect[e.from],lay.nodeRect[e.to]);
- const txt=e.why.length>40?e.why.slice(0,38)+'…':e.why;
- const w=Math.min(txt.length*6.4+20,290),h=22;
- let box=null;
- outer:
- for(const dy of [0,-28,28,-56,56,-84,84,-112,112,-140,140,-168,168]){
-   for(const dx of [0,-90,90,-180,180,-270,270]){
-     const c={x:r.lx-w/2+dx,y:r.ly-11+dy,w,h};
-     if(!placed.some(p=>hit(c,p))&&!cardBoxes.some(p=>hit(c,p))){box=c;break outer;}
-   }
- }
- if(!box)box={x:r.lx-w/2,y:r.ly-200-placed.length*26,w,h};
- placed.push(box);
- return `<div class="link-label" style="left:${box.x}px;top:${box.y}px;max-width:${w}px">${esc(txt)}</div>`;
- }).join(''):'';
+ const legendHtml='<div class="eco-chip" id="eco-chip" hidden></div>';
  return `<section id="section-ecosystem-map" class="block map-block"><div class="block-header"><div><div class="block-index">NODE MAPS</div><div class="block-title">Ecosystem Context Map</div></div><div class="block-status">${lay.related.size-1} RELATED NODES</div></div>
  <div class="callout">This view isolates the sectors and nodes with a documented relationship to ${esc(d.title)}. Outbound dependencies are drawn in solid weight; inbound flows in lighter weight. Each node links to its full institutional analysis.</div>
- <div class="section"><div class="eco-viewport" id="eco-viewport"><div class="eco-world" id="eco-world" style="width:${lay.worldW}px;height:${lay.worldH}px"><svg class="canvas-svg" viewBox="0 0 ${lay.worldW} ${lay.worldH}" aria-hidden="true"><defs><marker id="ecoarrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3d586b"></path></marker></defs>${linesHtml}</svg>${labelsHtml}${sectorsHtml}${nodesHtml}</div><div class="corner-note">DRAG TO PAN · SCROLL TO ZOOM · SELECT A NODE TO OPEN ITS ANALYSIS</div></div></div></section>`;
+ <div class="section"><div class="eco-viewport" id="eco-viewport"><div class="eco-world" id="eco-world" style="width:${lay.worldW}px;height:${lay.worldH}px">${sectorsHtml}<svg class="canvas-svg mid-svg" viewBox="0 0 ${lay.worldW} ${lay.worldH}" aria-hidden="true">${linesHtml}</svg>${nodesHtml}</div>${legendHtml}<div class="corner-note">DRAG TO PAN · SCROLL TO ZOOM · SELECT A NODE TO OPEN ITS ANALYSIS</div></div></div></section>`;
 }
 function initEcoPanZoom(root){
  const viewport=root.querySelector('#eco-viewport');const world=root.querySelector('#eco-world');if(!viewport||!world)return;
@@ -169,6 +295,40 @@ function initEcoPanZoom(root){
  viewport.addEventListener('pointermove',e=>{if(!dragging)return;x=ox+(e.clientX-sx);y=oy+(e.clientY-sy);apply();});
  viewport.addEventListener('pointerup',e=>{dragging=false;viewport.classList.remove('dragging');try{viewport.releasePointerCapture(e.pointerId)}catch(_){}});
  viewport.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY<0?1.12:.89,e.clientX,e.clientY);},{passive:false});
+ {
+   const chip=root.querySelector('#eco-chip');
+   const paths=[...world.querySelectorAll('[data-ei]')];
+   let pinned=null;
+   const showChip=(hit,e)=>{
+     if(!chip)return;
+     chip.textContent=hit.dataset.from+' \u2192 '+hit.dataset.to+' \u00b7 '+hit.dataset.why;
+     chip.hidden=false;
+     const vr=viewport.getBoundingClientRect();
+     let cx=e.clientX-vr.left+14,cy=e.clientY-vr.top+14;
+     chip.style.left='0px';chip.style.top='0px';
+     const cw=chip.offsetWidth,ch=chip.offsetHeight;
+     if(cx+cw>vr.width-10)cx=vr.width-cw-10;
+     if(cy+ch>vr.height-10)cy=cy-ch-28;
+     chip.style.left=cx+'px';chip.style.top=cy+'px';
+   };
+   const hideChip=()=>{if(chip)chip.hidden=true;};
+   const setFocus=ei=>{
+     if(ei===null){world.classList.remove('has-focus');paths.forEach(p=>p.classList.remove('lit'));hideChip();}
+     else{world.classList.add('has-focus');paths.forEach(p=>p.classList.toggle('lit',p.dataset.ei===ei));}
+   };
+   world.addEventListener('pointermove',e=>{
+     const hit=e.target.closest?e.target.closest('.link-hit'):null;
+     if(hit){if(pinned===null)setFocus(hit.dataset.ei);showChip(hit,e);}
+     else if(pinned===null){setFocus(null);}
+     else hideChip();
+   });
+   world.addEventListener('pointerleave',()=>{if(pinned===null)setFocus(null);else hideChip();});
+   world.addEventListener('click',e=>{
+     const hit=e.target.closest?e.target.closest('.link-hit'):null;
+     if(hit){pinned=pinned===hit.dataset.ei?null:hit.dataset.ei;setFocus(pinned===null?null:pinned);if(pinned!==null)showChip(hit,e);}
+     else if(pinned!==null){pinned=null;setFocus(null);}
+   });
+ }
  fit();requestAnimationFrame(fit);
 }
 // ===== Supply-chain placeholder (all nodes) =====

@@ -328,10 +328,10 @@ a{color:var(--blue)}
 .eco-viewport.dragging{cursor:grabbing}
 .eco-world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 .eco-viewport .canvas-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:1}
-.eco-viewport .link-halo{fill:none;stroke:var(--tc116);stroke-width:14;stroke-linecap:round;stroke-linejoin:round}
-.eco-viewport .link{fill:none;stroke:var(--tc27);stroke-width:4.8;stroke-linecap:round;stroke-linejoin:round}
-.eco-viewport .link.main{stroke:var(--tc21)}
-.eco-viewport .link.support{stroke:var(--tc52);stroke-dasharray:8 7}
+.eco-viewport .link-halo{fill:none;stroke:var(--tc116);stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.eco-viewport .link{fill:none;stroke:var(--tc21);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+
+
 .eco-viewport .link-label{position:absolute;z-index:18;padding:7px 10px;background:var(--tc116);border:1px solid var(--tc76);border-radius:9px;color:var(--tc23);font:800 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;box-shadow:0 8px 16px rgba(31,60,86,.08)}
 /* sector boxes - identical styling to the main map */
 .eco-viewport .sector{position:absolute;z-index:10;background:var(--tc116);border:1px solid var(--tc65);border-radius:16px;box-shadow:0 10px 28px rgba(29,54,78,.08);padding:12px 14px 14px}
@@ -549,3 +549,29 @@ img,svg{max-width:100%}
 /* eco map link labels: readable chips that never cover cards */
 .eco-world .link-label{white-space:normal;line-height:1.35;text-align:center;padding:6px 9px;font-size:9.5px;letter-spacing:.02em;background:var(--ec-surface);border-color:var(--ec-line);color:var(--ec-desc);box-shadow:0 4px 12px rgba(31,60,86,.10)}
 html[data-theme="dark"] .eco-world .link-label{box-shadow:0 4px 14px rgba(0,0,0,.4)}
+
+
+.eco-viewport .eco-tip{fill:none;stroke:var(--tc21);stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+
+.eco-viewport{position:relative}
+.eco-legend{position:absolute;right:12px;top:12px;z-index:30;width:238px;max-height:34%;overflow:auto;padding:9px 11px 10px;background:var(--tc116);border:1px solid var(--tc65);border-radius:11px;box-shadow:0 8px 22px rgba(29,54,78,.14);opacity:.96}
+.eco-legend .lg-head{margin-bottom:8px;color:var(--tc43);font:900 9.5px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}
+.eco-legend .lg-row{display:grid;grid-template-columns:12px auto;grid-template-rows:auto auto;column-gap:8px;row-gap:2px;align-items:center;padding:5px 0;border-top:1px solid var(--tc90)}
+.eco-legend .lg-row:first-of-type{border-top:0}
+.eco-legend .lg-swatch{grid-row:1/3;width:12px;height:12px;border-radius:3px}
+.eco-legend .lg-route{color:var(--tc16);font:900 9.5px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.03em}
+.eco-legend .lg-why{grid-column:2;color:var(--tc38);font-size:9.8px;line-height:1.4}
+
+.eco-legend .lg-row{cursor:pointer;border-radius:6px;padding:5px 5px}
+.eco-legend .lg-row:hover,.eco-legend .lg-row.active{background:var(--tc109)}
+.eco-world.has-focus .link,.eco-world.has-focus .eco-tip{opacity:.08}
+.eco-world.has-focus .link-halo{opacity:.4}
+.eco-world.has-focus .link.lit,.eco-world.has-focus .eco-tip.lit{opacity:1}
+.eco-world.has-focus .link.lit{stroke-width:5.2}
+
+.eco-viewport .mid-svg{z-index:11;pointer-events:none}
+
+.eco-viewport .mid-svg{pointer-events:none}
+.eco-viewport .link-hit{fill:none;stroke:#000;stroke-opacity:0;stroke-width:18;pointer-events:stroke;cursor:pointer}
+.eco-chip{position:absolute;z-index:40;max-width:340px;padding:8px 11px;background:var(--tc116);border:1px solid var(--tc65);border-radius:9px;box-shadow:0 8px 20px rgba(29,54,78,.16);color:var(--tc16);font-size:11px;line-height:1.5;pointer-events:none}
+.eco-world.has-focus .link-hit{pointer-events:stroke}
