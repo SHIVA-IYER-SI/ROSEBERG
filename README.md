@@ -1,8 +1,8 @@
-# Roseberg Terminal
+# Roseberg AI Map
 
-Structural value chain maps published under Kuberpath Financials.
+A structural map of the AI value chain, published under Kuberpath Financials. First in a planned series of Roseberg maps.
 
-Roseberg Terminal traces production chains stage by stage, from raw input to end demand. Each stage carries its own analysis: what it does, who controls it, where it can fail, and how a disruption there transmits to everything downstream.
+The map traces the AI production chain stage by stage, from raw input to end demand. Each stage carries its own analysis: what it does, who controls it, where it can fail, and how a disruption there transmits to everything downstream.
 
 **Live:** https://shiva-iyer-si.github.io/roseberg-terminal
 

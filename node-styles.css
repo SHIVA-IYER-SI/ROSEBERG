@@ -8,8 +8,7 @@ html[data-theme="dark"]{color-scheme:dark;--tc0:#35d5e9;--tc1:#d6e1eb;--tc2:#e1e
   --text:var(--tc2); --muted:var(--tc36); --muted2:var(--tc49); --line:var(--tc74); --line2:var(--tc60);
   --blue:var(--tc8); --cyan:var(--tc0); --green:var(--tc12); --amber:var(--tc64); --red:var(--tc72);
   --purple:var(--tc48); --orange:var(--tc75); --shadow:0 22px 56px rgba(26,52,74,.16);
-  --header:72px; --sidebar:176px;
-}
+  --header:72px; --sidebar:176px}
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 8% 2%,rgba(23,111,174,.07),transparent 26%),var(--bg);color:var(--text)}
 button,input{font:inherit} button{color:inherit}
 a{color:var(--blue)}
@@ -107,13 +106,7 @@ a{color:var(--blue)}
 .footer-note,
 .glossary-definition,
 .glossary-note {
-  text-align: justify;
-  text-justify: inter-word;
-  text-align-last: left;
-  hyphens: auto;
-  -webkit-hyphens: auto;
-  overflow-wrap: anywhere;
-}
+  text-align:left;overflow-wrap:break-word}
 
 /* Maintain clean terminal labels and numeric data without forced spacing. */
 .card h3,
@@ -138,11 +131,10 @@ a{color:var(--blue)}
 .toc-link,
 .hero-value,
 .hero-label {
-  text-align: left;
-}
+  text-align: left}
 
 
-/* V5 — unified institutional colour system across every node page. */
+/* unified institutional colour system across every node page. */
 :root{--roseberg-accent:var(--tc8);--roseberg-accent-soft:var(--tc92);--roseberg-accent-line:var(--tc56)}
 .hero-main{border-top-color:var(--roseberg-accent)}
 .hero-code,.block-index,.interpretation-label,.next-code,.collapse-kicker{color:var(--roseberg-accent)}
@@ -176,7 +168,7 @@ a{color:var(--blue)}
 .effect-label{color:var(--tc37);font:900 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.09em}
 .effect-badge{padding:6px 8px;border-radius:999px;font:900 8px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.07em}
 .effect-card h3{margin:12px 0 8px;font-size:16px;line-height:1.42}
-.effect-card p{margin:0;color:var(--tc19);font-size:14px;line-height:1.76;text-align:justify;text-justify:inter-word;text-align-last:left;hyphens:auto}
+.effect-card p{margin:0;color:var(--tc19);font-size:14px;line-height:1.76;text-align:left}
 .effect-positive{border-color:var(--tc61);border-top-color:var(--tc12);background:linear-gradient(145deg,var(--tc102),var(--tc115))}
 .effect-positive::before{background:var(--tc12)}.effect-positive .effect-badge{color:var(--tc10);background:var(--tc89);border:1px solid var(--tc61)}.effect-positive h3{color:var(--tc10)}
 .effect-negative{border-color:var(--tc87);border-top-color:var(--tc72);background:linear-gradient(145deg,var(--tc112),var(--tc115))}
@@ -185,16 +177,15 @@ a{color:var(--blue)}
 .effect-mixed::before{background:var(--tc64)}.effect-mixed .effect-badge{color:var(--tc55);background:var(--tc111);border:1px solid var(--tc84)}.effect-mixed h3{color:var(--tc55)}
 .effect-neutral{border-color:var(--tc63);border-top-color:var(--tc8);background:linear-gradient(145deg,var(--tc99),var(--tc115))}
 .effect-neutral::before{background:var(--tc8)}.effect-neutral .effect-badge{color:var(--tc6);background:var(--tc92);border:1px solid var(--tc63)}.effect-neutral h3{color:var(--tc6)}
-.industry-note{margin-top:12px;padding:12px 14px;color:var(--tc35);background:var(--tc103);border:1px solid var(--tc81);border-radius:9px;font-size:12.5px;line-height:1.68;text-align:justify;text-justify:inter-word;text-align-last:left}
+.industry-note{margin-top:12px;padding:12px 14px;color:var(--tc35);background:var(--tc103);border:1px solid var(--tc81);border-radius:9px;font-size:12.5px;line-height:1.68;text-align:left}
 
 /* Extend justified alignment to the newly expanded professional text. */
 .hero-note,.executive-interpretation p,.metric-explanation,.glossary-meaning,.transmission-intro,.industry-intro,.industry-note,.direction-label{
-  text-align:justify;text-justify:inter-word;text-align-last:left;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere;
-}
+  text-align:left;overflow-wrap:break-word}
 @media(max-width:1100px){.effect-grid{grid-template-columns:1fr}.section-heading-row{align-items:flex-start;flex-direction:column}.section-tag{white-space:normal}.flow-arrow{display:none}}
 
 
-/* V6 — market leadership and concentration. */
+/* market leadership and concentration. */
 .leadership-section{margin-top:26px;padding-top:24px;border-top:1px solid var(--tc83)}
 .leadership-basis{font-size:14px;line-height:1.75}
 .leadership-grid{display:grid;grid-template-columns:390px minmax(0,1fr);gap:18px;align-items:stretch;margin-top:15px}
@@ -209,14 +200,13 @@ a{color:var(--blue)}
 @media(max-width:700px){.leadership-chart-card{grid-template-columns:1fr}.donut{width:190px;height:190px}.donut::after{inset:38px}.donut-center{inset:44px}}
 
 
-/* V7 — reading-first typography and spacing refinement.
+/* reading-first typography and spacing refinement.
    Keeps the approved institutional hierarchy while improving legibility in
    navigation, tables, evidence panels, charts, sources and technical notes. */
 :root{
   --reading-body:15px;
   --reading-compact:14px;
-  --reading-label:10.5px;
-}
+  --reading-label:10.5px}
 
 /* Left navigation: use the available width instead of leaving text visually undersized. */
 .detail-layout{grid-template-columns:248px minmax(0,1fr);gap:17px}
@@ -530,8 +520,7 @@ h1,h2,h3{letter-spacing:-.02em}
 /* ===== dark theme palette (node) ===== */
 html[data-theme="dark"] body{background:radial-gradient(circle at 8% 2%,rgba(64,148,208,.05),transparent 30%),#0f151b}
 html[data-theme="dark"]{
-  --tc-bg-tune:#0f151b;
-}
+  --tc-bg-tune:#0f151b}
 
 html[data-theme="dark"]{--tc4:#e8f0f7;--tc9:#e2ebf3;--tc20:#63b0e3;--tc41:#a3b6c6;--tc44:#93a8b9;--tc45:#93a8b9;--tc64:#f0b84a;--tc79:#2b3d50;--tc82:#2b3d4e;--tc85:#293b4c;--tc106:#182430;--tc107:#17222d;--tc109:#141c25;--tc115:#10161d;--tc116:#10161d}
 
@@ -547,3 +536,12 @@ html[data-theme="dark"]{--tc4:#e8f0f7;--tc9:#e2ebf3;--tc20:#63b0e3;--tc41:#a3b6c
 .sf-nav a{color:var(--blue,#1a5f8f);text-decoration:none}
 .sf-nav a:hover{text-decoration:underline}
 .sf-nav span{color:var(--muted)}
+
+/* page-level horizontal overflow guard: the document never scrolls sideways;
+   wide tables scroll inside their own .table-wrap containers instead */
+html{overflow-x:clip}
+body{overflow-x:clip}
+.page,.hero,.hero-main,.detail-layout,section{min-width:0}
+.hero{grid-template-columns:minmax(0,1fr) minmax(300px,430px)}
+img,svg{max-width:100%}
+.table-wrap{max-width:100%}
